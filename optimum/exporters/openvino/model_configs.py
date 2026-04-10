@@ -181,6 +181,7 @@ from .model_patcher import (
     OVDecoderModelPatcher,
     OVSeq2SeqModelPatcher,
     OVSpeechT5ModelPatcher,
+    PaddleOCRVLModelPatcher,
     PegasusModelPatcher,
     PersimmonModelPatcher,
     Phi3ModelPatcher,
@@ -284,6 +285,10 @@ def init_model_configs():
         "AutoModelForCausalLM",
     )
     TasksManager._CUSTOM_CLASSES[("pt", "llama4", "image-text-to-text")] = (
+        "transformers",
+        "AutoModelForImageTextToText",
+    )
+    TasksManager._CUSTOM_CLASSES[("pt", "paddleocr_vl", "image-text-to-text")] = (
         "transformers",
         "AutoModelForImageTextToText",
     )
@@ -4986,6 +4991,22 @@ class AfmoeOpenVINOConfig(LlamaOpenVINOConfig):
     MAX_TRANSFORMERS_VERSION = "4.57.99"
     _MODEL_PATCHER = AfmoeModelPatcher
 
+
+@register_in_tasks_manager(
+    "paddleocr_vl",
+    ["image-text-to-text"],
+    library_name="transformers",
+)
+class PaddleOCRVLOpenVINOConfig(BaseVLMOpenVINOConfig):
+
+    NORMALIZED_CONFIG_CLASS = NormalizedTextConfig
+
+    DUMMY_INPUT_GENERATOR_CLASSES = (
+        DummyVisionInputGenerator,
+        DummyTextInputGenerator,
+    )
+
+    _MODEL_PATCHER = PaddleOCRVLModelPatcher
 
 @register_in_tasks_manager("olmo2", *COMMON_TEXT_GENERATION_TASKS, library_name="transformers")
 class Olmo2OOpenVINOConfig(Olmo2OnnxConfig):

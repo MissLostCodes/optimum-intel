@@ -8319,3 +8319,92 @@ class Qwen3NextModelPatcher(OVDecoderModelPatcher):
                 sparse_moe_block = decoder_layer.mlp
                 decoder_layer.mlp.forward = decoder_layer.mlp._orig_forward
                 del sparse_moe_block.down_projs, sparse_moe_block.gate_projs, sparse_moe_block.up_projs
+
+def _generic_gqa_attention(self, hidden_states, attention_mask=None, **kwargs):
+    bsz, seq_len, _ = hidden_states.shape
+
+    q = self.q_proj(hidden_states)
+    k = self.k_proj(hidden_states)
+    v = self.v_proj(hidden_states)
+
+    num_heads = self.num_heads
+    num_kv_heads = getattr(self, "num_key_value_heads", num_heads)
+    head_dim = q.shape[-1] // num_heads
+
+    q = q.view(bsz, seq_len, num_heads, head_dim).transpose(1, 2)
+    k = k.view(bsz, seq_len, num_kv_heads, head_dim).transpose(1, 2)
+    v = v.view(bsz, seq_len, num_kv_heads, head_dim).transpose(1, 2)
+
+    # GQA handling
+    if num_kv_heads != num_heads:
+        repeat_factor = num_heads // num_kv_heads
+        k = k.repeat_interleave(repeat_factor, dim=1)
+        v = v.repeat_interleave(repeat_factor, dim=1)
+
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        q, k, v, attn_mask=attention_mask
+    )
+
+    attn_output = attn_output.transpose(1, 2).contiguous()
+    attn_output = attn_output.view(bsz, seq_len, num_heads * head_dim)
+
+    return self.o_proj(attn_output)
+
+
+def _generic_attention(self, hidden_states, attention_mask=None, **kwargs):
+    q = self.q_proj(hidden_states)
+    k = self.k_proj(hidden_states)
+    v = self.v_proj(hidden_states)
+
+    attn_output = torch.nn.functional.scaled_dot_product_attention(q, k, v)
+    return self.out_proj(attn_output)
+
+
+class PaddleOCRVLModelPatcher(OVDecoderModelPatcher):
+    def __enter__(self):
+        super().__enter__()
+
+        # dtype fix
+        try:
+            self._model.to(torch.float32)
+        except Exception:
+            pass
+
+        #  TEXT (decoder) attention patch
+        if hasattr(self._model.model, "language_model"):
+            for layer in self._model.model.language_model.layers:
+                attn = layer.self_attn
+
+                if hasattr(attn, "q_proj"):
+                    attn._orig_forward = attn.forward
+                    attn.forward = types.MethodType(_generic_gqa_attention, attn)
+
+        # VISION attention patch
+        if hasattr(self._model.model, "visual"):
+            vision_layers = self._model.model.visual.vision_model.encoder.layers
+
+            for layer in vision_layers:
+                attn = layer.self_attn
+
+                if hasattr(attn, "q_proj"):
+                    attn._orig_forward = attn.forward
+                    attn.forward = types.MethodType(_generic_attention, attn)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        super().__exit__(exc_type, exc_value, traceback)
+
+        # restore text attention
+        if hasattr(self._model.model, "language_model"):
+            for layer in self._model.model.language_model.layers:
+                attn = layer.self_attn
+                if hasattr(attn, "_orig_forward"):
+                    attn.forward = attn._orig_forward
+
+        # restore vision attention
+        if hasattr(self._model.model, "visual"):
+            vision_layers = self._model.model.visual.vision_model.encoder.layers
+
+            for layer in vision_layers:
+                attn = layer.self_attn
+                if hasattr(attn, "_orig_forward"):
+                    attn.forward = attn._orig_forward
