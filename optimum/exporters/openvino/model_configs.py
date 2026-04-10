@@ -5023,13 +5023,17 @@ class PaddleOCRVLOpenVINOConfig(BaseVLMOpenVINOConfig):
 
     _MODEL_PATCHER = PaddleOCRVLModelPatcher
 
-    @property
-    def behavior(self):
-        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        print("BEHAVIOUR FOR PADDLE OCR CALLED ")
-        print(VLMConfigBehavior.LANGUAGE)
-        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        return VLMConfigBehavior.LANGUAGE
+    def __init__(self, *args, **kwargs):
+        kwargs["behavior"] = VLMConfigBehavior.LANGUAGE
+        super().__init__(*args, **kwargs)
+
+    # @property
+    # def behavior(self):
+    #     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    #     print("BEHAVIOUR FOR PADDLE OCR CALLED ")
+    #     print(VLMConfigBehavior.LANGUAGE)
+    #     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    #     return VLMConfigBehavior.LANGUAGE
 
 @register_in_tasks_manager("olmo2", *COMMON_TEXT_GENERATION_TASKS, library_name="transformers")
 class Olmo2OOpenVINOConfig(Olmo2OnnxConfig):
