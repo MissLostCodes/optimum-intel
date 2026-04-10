@@ -1836,12 +1836,14 @@ class BaseVLMOpenVINOConfig(OnnxConfig):
 
     @property
     def inputs(self) -> Dict[str, Dict[int, str]]:
+        print("+++++++++++INPUTS FROM BASECLMOPENVINOCONFIG+++++++++++++++++++")
         if not self._behavior == VLMConfigBehavior.VISION_EMBEDDINGS:
             return {}
         return {"pixel_values": {0: "batch_size", 2: "height", 3: "width"}}
 
     @property
     def outputs(self) -> Dict[str, Dict[int, str]]:
+        print("+++++++++++OUTPUTS FROM BASECLMOPENVINOCONFIG+++++++++++++++++++")
         if not self._behavior == VLMConfigBehavior.VISION_EMBEDDINGS:
             return {}
         return {"last_hidden_state": {0: "batch_size"}}
@@ -1857,22 +1859,30 @@ class BaseVLMOpenVINOConfig(OnnxConfig):
             behavior ([`ConfigBehavior`]):
                 The behavior to use for the new instance.
         """
+        print("+++++++++++BEHAVIOUR FROM BASECLMOPENVINOCONFIG+++++++++++++++++++")
         if isinstance(behavior, str) and not isinstance(behavior, VLMConfigBehavior):
             behavior = VLMConfigBehavior(behavior)
 
         if behavior == VLMConfigBehavior.TEXT_EMBEDDINGS:
+            print("+++++++++++BEHAVIOUR TEXT_EMBEDDINGS +++++++++++++++++++")
             model_type = self._orig_config.text_config.model_type
             return get_vlm_text_embeddings_config(
                 model_type, self._orig_config.text_config, self.int_dtype, self.float_dtype
             )
 
         if behavior == VLMConfigBehavior.LANGUAGE:
+            print("+++++++++++BEHAVIOUR LANGUAGE +++++++++++++++++++")
             model_type = self._orig_config.text_config.model_type
+            print(model_type)
+            print(get_vlm_text_generation_config(
+                model_type, self._orig_config.text_config, self.int_dtype, self.float_dtype
+            ))
             return get_vlm_text_generation_config(
                 model_type, self._orig_config.text_config, self.int_dtype, self.float_dtype
             )
 
         if behavior == VLMConfigBehavior.VISION_EMBEDDINGS:
+            print("+++++++++++BEHAVIOUR VISION_EMBEDDINGS +++++++++++++++++++")
             return self.__class__(
                 self._orig_config,
                 task=self.task,
@@ -1883,10 +1893,14 @@ class BaseVLMOpenVINOConfig(OnnxConfig):
             )
 
     def get_model_for_behavior(self, model, behavior: Union[str, VLMConfigBehavior]):
+        print("++++++++++++++++++get_model_for_behavior ++++++++++++++++++++++++++++++++")
         if isinstance(behavior, str) and not isinstance(behavior, VLMConfigBehavior):
+            print("++++++++++++++++++get_model_for_behavior instance(behavior, str) and not isinstance(behavior, VLMConfigBehavior):++++++++++++++++++++++++++++++++")
             behavior = VLMConfigBehavior(behavior)
 
         if behavior == VLMConfigBehavior.LANGUAGE:
+            print("++++++++++++++++++get_model_for_behavior VLMConfigBehavior.LANGUAGE++++++++++++++++++++++++++++++++")
+            print(model.language_model if not hasattr(model, "lm_head") else model)
             return model.language_model if not hasattr(model, "lm_head") else model
 
         if behavior == VLMConfigBehavior.VISION_EMBEDDINGS:
@@ -1898,6 +1912,7 @@ class BaseVLMOpenVINOConfig(OnnxConfig):
             return text_embedding
 
     def patch_model_for_export(self, model: PreTrainedModel, model_kwargs: Optional[Dict[str, Any]] = None):
+        print("++++++++++++++++++++patch_model_for_export++++++++++++++++++++++++++++++")
         model_kwargs = model_kwargs or {}
         if self._behavior != VLMConfigBehavior.VISION_EMBEDDINGS:
             return super().patch_model_for_export(model, model_kwargs)
@@ -5010,6 +5025,10 @@ class PaddleOCRVLOpenVINOConfig(BaseVLMOpenVINOConfig):
 
     @property
     def behavior(self):
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print("BEHAVIOUR FOR PADDLE OCR CALLED ")
+        print(VLMConfigBehavior.LANGUAGE)
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         return VLMConfigBehavior.LANGUAGE
 
 @register_in_tasks_manager("olmo2", *COMMON_TEXT_GENERATION_TASKS, library_name="transformers")
