@@ -5027,6 +5027,13 @@ class PaddleOCRVLOpenVINOConfig(BaseVLMOpenVINOConfig):
         kwargs["behavior"] = VLMConfigBehavior.LANGUAGE
         super().__init__(*args, **kwargs)
 
+    @property
+    def inputs(self):
+        return {
+            "input_ids": {0: "batch_size", 1: "sequence_length"},
+            "attention_mask": {0: "batch_size", 1: "sequence_length"},
+            "pixel_values": {0: "batch_size", 2: "height", 3: "width"},
+        }
     # @property
     # def behavior(self):
     #     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
