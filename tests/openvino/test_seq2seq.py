@@ -528,6 +528,7 @@ class OVModelForVisualCausalLMIntegrationTest(OVSeq2SeqTestMixin):
         "llava_next_video",
         "llava-qwen2",
         "minicpmv",
+        "paddleocr_vl",
         "phi3_v",
         "qwen2_vl",
     ]
@@ -559,7 +560,7 @@ class OVModelForVisualCausalLMIntegrationTest(OVSeq2SeqTestMixin):
         # remote code models differs after transformers v4.54
         SUPPORTED_ARCHITECTURES = set(SUPPORTED_ARCHITECTURES) - {"llava-qwen2", "phi3_v", "phi4mm"}
 
-    REMOTE_CODE_MODELS = ["internvl_chat", "minicpmv", "minicpmo", "llava-qwen2", "phi3_v", "maira2", "phi4mm"]
+    REMOTE_CODE_MODELS = ["internvl_chat", "minicpmv", "minicpmo", "llava-qwen2", "paddleocr_vl", "phi3_v", "maira2", "phi4mm"]
     IMAGE = Image.open(
         requests.get(
             TEST_IMAGE_URL,

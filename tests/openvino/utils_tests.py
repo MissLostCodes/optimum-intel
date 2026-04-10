@@ -228,6 +228,7 @@ MODEL_NAMES = {
     "ltx-video": "optimum-intel-internal-testing/tiny-random-ltx-video",
     "zamba2": "optimum-intel-internal-testing/tiny-random-zamba2",
     "qwen3_eagle3": "AngelSlim/Qwen3-1.7B_eagle3",
+    "paddleocr_vl": "PaddlePaddle/PaddleOCR-VL",
 }
 
 EAGLE3_MODELS = {"qwen3_eagle3": ("AngelSlim/Qwen3-1.7B_eagle3", "Qwen/Qwen3-1.7B")}
@@ -366,6 +367,11 @@ _ARCHITECTURES_TO_EXPECTED_INT8 = {
         "vision_embeddings_model": 8,
         "resampler_model": 6,
     },
+    "paddleocr_vl": {
+        "lm_model": 30,
+        "text_embeddings_model": 1,
+        "vision_embeddings_model": 15,
+    },
     "zamba2": {"model": 44},
     "exaone4": {"model": 16},
     "lfm2": {"model": 52},
@@ -399,6 +405,7 @@ REMOTE_CODE_MODELS = (
     "minicpm3",
     "deepseek",
     "qwen3_eagle3",
+    "paddleocr_vl",
 )
 
 
