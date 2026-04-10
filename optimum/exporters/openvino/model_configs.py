@@ -4994,7 +4994,7 @@ class AfmoeOpenVINOConfig(LlamaOpenVINOConfig):
 
 @register_in_tasks_manager(
     "paddleocr_vl",
-    ["image-text-to-text"],
+    *["image-text-to-text"],
     library_name="transformers",
 )
 class PaddleOCRVLOpenVINOConfig(BaseVLMOpenVINOConfig):
