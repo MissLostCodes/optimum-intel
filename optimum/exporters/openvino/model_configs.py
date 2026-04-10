@@ -4998,7 +4998,7 @@ class AfmoeOpenVINOConfig(LlamaOpenVINOConfig):
     library_name="transformers",
 )
 class PaddleOCRVLOpenVINOConfig(BaseVLMOpenVINOConfig):
-
+    MIN_TRANSFORMERS_VERSION = "4.55.0"
     NORMALIZED_CONFIG_CLASS = NormalizedTextConfig
 
     DUMMY_INPUT_GENERATOR_CLASSES = (
