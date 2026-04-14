@@ -28,6 +28,7 @@ class OVSentenceTransformer(OVModel):
 
         self.encode = MethodType(SentenceTransformer.encode, self)
         self.is_singular_input = MethodType(SentenceTransformer.is_singular_input, self)
+        self._resolve_prompt = MethodType(SentenceTransformer._resolve_prompt, self)
         self.default_prompt_name = None
         self.truncate_dim = None
         self.tokenizer = tokenizer
