@@ -30,6 +30,7 @@ class OVSentenceTransformer(OVModel):
         self.is_singular_input = MethodType(SentenceTransformer.is_singular_input, self)
         self._resolve_prompt = MethodType(SentenceTransformer._resolve_prompt, self)
         self._input_length = SentenceTransformer._input_length
+        self._can_flatten_inputs =  MethodType(SentenceTransformer._can_flatten_inputs, self)
         self.default_prompt_name = None
         self.truncate_dim = None
         self.tokenizer = tokenizer
