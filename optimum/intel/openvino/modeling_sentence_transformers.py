@@ -27,7 +27,7 @@ class OVSentenceTransformer(OVModel):
         super().__init__(model, config, **kwargs)
 
         self.encode = MethodType(SentenceTransformer.encode, self)
-        self._input_length = MethodType(SentenceTransformer._input_length, self)
+        self.is_singular_input = MethodType(SentenceTransformer.is_singular_input, self)
         self.default_prompt_name = None
         self.truncate_dim = None
         self.tokenizer = tokenizer
