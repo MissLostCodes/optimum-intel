@@ -2252,6 +2252,7 @@ class LlavaQwen2OpenVINOConfig(BaseVLMOpenVINOConfig):
             return get_vlm_text_generation_config(model_type, self._orig_config, self.int_dtype, self.float_dtype)
 
         if behavior == VLMConfigBehavior.VISION_EMBEDDINGS:
+            print("💖 💖 💖 💖 💖 💖 💖 💖 💖 💖 💖 behavior == VLMConfigBehavior.VISION_EMBEDDINGS:💖 💖 💖 💖 💖 💖 💖 💖 💖 💖 💖 💖 💖 ")
             return self.__class__(
                 self._orig_config,
                 task=self.task,
@@ -2259,6 +2260,7 @@ class LlavaQwen2OpenVINOConfig(BaseVLMOpenVINOConfig):
                 float_dtype=self.float_dtype,
                 behavior=behavior,
                 preprocessors=self._preprocessors,
+                trust_remote_code=self._trust_remote_code,
             )
 
     def patch_model_for_export(self, model: PreTrainedModel, model_kwargs: Optional[Dict[str, Any]] = None):
@@ -3126,23 +3128,36 @@ class Phi3VisionOpenVINOConfig(BaseVLMOpenVINOConfig):
             return get_vlm_text_generation_config("phi3", self._orig_config, self.int_dtype, self.float_dtype)
 
         if behavior == Phi3VisionConfigBehavior.VISION_EMBEDDINGS:
-            return self.__class__(
+            print(f"🔥🔥🔥🔥🔥🔥BEFORE with_behavior | current_behavior={self._behavior} | trust_remote_code={self._trust_remote_code}🔥🔥🔥🔥🔥")
+            new_config = self.__class__(
                 self._orig_config,
                 task=self.task,
                 int_dtype=self.int_dtype,
                 float_dtype=self.float_dtype,
                 behavior=behavior,
                 preprocessors=self._preprocessors,
+                trust_remote_code=self._trust_remote_code,
             )
+
+            print(
+                f"⬅️ AFTER with_behavior | new_behavior={behavior} | trust_remote_code={new_config._trust_remote_code}")
+            return new_config
+
         if behavior == Phi3VisionConfigBehavior.VISION_PROJECTION:
-            return self.__class__(
+            print(f"🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥BEFORE with_behavior | current_behavior={self._behavior} | trust_remote_code={self._trust_remote_code}🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥")
+            new_config = self.__class__(
                 self._orig_config,
                 task=self.task,
                 int_dtype=self.int_dtype,
                 float_dtype=self.float_dtype,
                 behavior=behavior,
                 preprocessors=self._preprocessors,
+                trust_remote_code=self._trust_remote_code,
             )
+
+            print(
+                f"🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥⬅️ AFTER with_behavior | new_behavior={behavior} | trust_remote_code={new_config._trust_remote_code}🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥")
+            return new_config
 
     @staticmethod
     def get_model_for_behavior(model, behavior: Union[str, Phi3VisionConfigBehavior]):
